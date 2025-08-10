@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Learning Path: Enterprise Healthcare Automation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with Professional Blue/Teal Accents -->
+    <!-- Application Structure Plan: The application is structured as a user-centric, interactive dashboard rather than a linear report. The flow is designed for exploration: 1. Welcome: A quick orientation. 2. Gap Analysis: An immediate, visual understanding of the core challenge using an interactive radar chart. This is more engaging than a static table and provides a clear "why" for the plan. 3. The 3 Pillars: A tabbed interface to break down the dense learning curriculum into manageable, thematic sections (Domain, Tech, Leadership). This prevents overwhelm and allows focused exploration. 4. Capstone Projects: A card-based gallery to showcase the tangible outcomes of the learning plan, making the end goal feel more concrete. 5. Interactive Roadmap: A dynamic Gantt-style chart that transforms the static timeline table into a visual, trackable plan. This structure was chosen to guide the user from understanding their current state to exploring the solution, seeing the proof (projects), and visualizing the execution timeline, which is a more intuitive and motivating user journey than reading a document sequentially. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Gap Analysis table. Goal: Compare current skills vs. required competencies. Viz/Method: Interactive Radar Chart. Interaction: Hovering over points shows scores. Justification: A radar chart provides a powerful, at-a-glance visualization of strengths and weaknesses across multiple axes, far more impactful than a text table. Library: Chart.js.
+        - Report Info: Three Pillars of curriculum. Goal: Organize a large amount of learning content. Viz/Method: Tabbed interface with interactive cards. Interaction: Clicking tabs reveals pillar content; cards can be clicked/hovered for more info. Justification: Tabs break down the curriculum into logical, digestible chunks, preventing information overload. Cards organize individual learning items cleanly. Library/Method: HTML/CSS/JS.
+        - Report Info: Phased Implementation Roadmap table. Goal: Show change over time. Viz/Method: Horizontal Bar Chart (Gantt-style). Interaction: Tooltips on hover provide details for each phase. Justification: A Gantt-style chart is the industry standard for visualizing project timelines, making the 18+ month plan easy to understand and track. Library: Chart.js.
+        - Report Info: Capstone Projects. Goal: Inform and showcase outcomes. Viz/Method: Grid of styled cards. Interaction: N/A, static display. Justification: A clean, visually appealing grid is effective for presenting a portfolio of projects. Library/Method: HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 450px;
+            }
+        }
+        .timeline-chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            max-height: 500px;
+        }
+        .tab-active {
+            border-color: #0d9488;
+            color: #0d9488;
+            font-weight: 600;
+        }
+        .tab-inactive {
+            border-color: transparent;
+            color: #6b7280;
+        }
+        .card-flip {
+            perspective: 1000px;
+        }
+        .card-flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flip:hover .card-flip-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-teal-700">Lamin Yabou's Learning Path</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#gap-analysis" class="text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Gap Analysis</a>
+                        <a href="#learning-plan" class="text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Learning Plan</a>
+                        <a href="#projects" class="text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Capstone Projects</a>
+                        <a href="#roadmap" class="text-gray-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">Roadmap</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <section id="intro" class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Blueprint for a Career in Enterprise Healthcare Automation</h2>
+            <p class="max-w-3xl mx-auto text-gray-600">This interactive application outlines a personalized development plan to transition from an IT role to an Enterprise Automation leader in managed care. Explore the analysis, learning plan, and timeline to guide your journey.</p>
+        </section>
+
+        <section id="gap-analysis" class="mb-16 bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-2xl font-bold text-center mb-2">Current Profile vs. Target Role</h3>
+            <p class="text-center text-gray-600 mb-8">This visualization highlights the gap between your current skills and the competencies required for the target role. The goal is to move the <span class="text-blue-500 font-semibold">'Current'</span> profile outwards to match the <span class="text-teal-500 font-semibold">'Required'</span> benchmark.</p>
+            <div class="chart-container">
+                <canvas id="gapAnalysisChart"></canvas>
+            </div>
+        </section>
+
+        <section id="learning-plan" class="mb-16">
+            <h3 class="text-2xl font-bold text-center mb-8">The Three Pillars of Mastery: A Specialized Curriculum</h3>
+            <div class="max-w-5xl mx-auto">
+                <div class="border-b border-gray-200 mb-6">
+                    <nav class="-mb-px flex space-x-6 justify-center" aria-label="Tabs">
+                        <button id="tab-domain" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium tab-active">
+                            <span class="text-2xl mr-2">🏛️</span> Pillar I: Managed Care Domain
+                        </button>
+                        <button id="tab-tech" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium tab-inactive">
+                            <span class="text-2xl mr-2">💻</span> Pillar II: Automation Tech Stack
+                        </button>
+                        <button id="tab-leadership" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium tab-inactive">
+                            <span class="text-2xl mr-2">🚀</span> Pillar III: Strategic Leadership
+                        </button>
+                    </nav>
+                </div>
+
+                <div id="content-domain" class="tab-content">
+                    <p class="text-center text-gray-600 mb-8">Automating a process requires a deep understanding of its purpose, rules, and nuances. This pillar is foundational and must be the first area of focus. Hover over cards for details.</p>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Domain Cards -->
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-teal-50 border border-teal-200"><h4 class="font-bold text-teal-800">AHIP AHM250</h4><p class="text-teal-700 text-sm">Intro to Health Care Mgmt</p></div><div class="card-back bg-teal-600 text-white"><p class="text-sm">Covers managed care evolution, plan types, and claims fundamentals. High-ROI investment.</p></div></div></div>
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-teal-50 border border-teal-200"><h4 class="font-bold text-teal-800">DMHC Claims TAG</h4><p class="text-teal-700 text-sm">Self-Study</p></div><div class="card-back bg-teal-600 text-white"><p class="text-sm">A regulatory blueprint for how CA health plans must handle claims. Essential for automation design.</p></div></div></div>
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-teal-50 border border-teal-200"><h4 class="font-bold text-teal-800">Medical Claims Course</h4><p class="text-teal-700 text-sm">Practical Skills</p></div><div class="card-back bg-teal-600 text-white"><p class="text-sm">Hands-on skills for CMS-1500 forms and the full claims lifecycle, complementing regulatory knowledge.</p></div></div></div>
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-teal-50 border border-teal-200"><h4 class="font-bold text-teal-800">HIPAA Certification</h4><p class="text-teal-700 text-sm">For Business Associates</p></div><div class="card-back bg-teal-600 text-white"><p class="text-sm">Mandatory for handling PHI. Demonstrates formal understanding of Privacy and Security rules.</p></div></div></div>
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-teal-50 border border-teal-200"><h4 class="font-bold text-teal-800">Knox-Keene Act</h4><p class="text-teal-700 text-sm">Familiarization</p></div><div class="card-back bg-teal-600 text-white"><p class="text-sm">A non-negotiable area of study mentioned in the job description. Understand its core principles.</p></div></div></div>
+                    </div>
+                </div>
+
+                <div id="content-tech" class="tab-content hidden">
+                    <p class="text-center text-gray-600 mb-8">This pillar focuses on building the specific "hard skills" listed in the job description, transitioning from general IT knowledge to specialized automation platforms. Hover over cards for details.</p>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Tech Cards -->
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-blue-50 border border-blue-200"><h4 class="font-bold text-blue-800">UiPath Certification</h4><p class="text-blue-700 text-sm">Automation Developer</p></div><div class="card-back bg-blue-600 text-white"><p class="text-sm">Provides a strong, marketable credential in a core RPA technology explicitly mentioned in the role.</p></div></div></div>
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-blue-50 border border-blue-200"><h4 class="font-bold text-blue-800">EZCAP Strategy</h4><p class="text-blue-700 text-sm">Reverse-Engineering</p></div><div class="card-back bg-blue-600 text-white"><p class="text-sm">A proactive strategy to understand this critical system by analyzing documentation and market data.</p></div></div></div>
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-blue-50 border border-blue-200"><h4 class="font-bold text-blue-800">BPMN Proficiency</h4><p class="text-blue-700 text-sm">Lucidchart/Visio</p></div><div class="card-back bg-blue-600 text-white"><p class="text-sm">Learn standardized notation to professionally document current and future-state processes.</p></div></div></div>
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-blue-50 border border-blue-200"><h4 class="font-bold text-blue-800">Platform Fluency</h4><p class="text-blue-700 text-sm">Innovaccer & Epic</p></div><div class="card-back bg-blue-600 text-white"><p class="text-sm">Become a knowledgeable commentator on their strategic implications for automation.</p></div></div></div>
+                    </div>
+                </div>
+
+                <div id="content-leadership" class="tab-content hidden">
+                    <p class="text-center text-gray-600 mb-8">This pillar directly targets the strategic management and process improvement skills required by the role, providing a powerful counter-narrative to academic development areas. Hover over cards for details.</p>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Leadership Cards -->
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-indigo-50 border border-indigo-200"><h4 class="font-bold text-indigo-800">Lean Six Sigma</h4><p class="text-indigo-700 text-sm">Green Belt</p></div><div class="card-back bg-indigo-600 text-white"><p class="text-sm">Demonstrates mastery of process optimization with a structured, data-driven methodology (DMAIC).</p></div></div></div>
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-indigo-50 border border-indigo-200"><h4 class="font-bold text-indigo-800">PMI CAPM</h4><p class="text-indigo-700 text-sm">Project Management</p></div><div class="card-back bg-indigo-600 text-white"><p class="text-sm">Validates foundational knowledge of project management principles for leading complex projects.</p></div></div></div>
+                        <div class="card-flip h-48"><div class="card-flip-inner"><div class="card-front bg-indigo-50 border border-indigo-200"><h4 class="font-bold text-indigo-800">Operations Mgmt Cert</h4><p class="text-indigo-700 text-sm">Graduate Level</p></div><div class="card-back bg-indigo-600 text-white"><p class="text-sm">A longer-term, high-impact option to definitively establish expertise for senior leadership roles.</p></div></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="mb-16 bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-2xl font-bold text-center mb-2">The Capstone Project Strategy</h3>
+            <p class="text-center text-gray-600 mb-8">Knowledge must be forged into experience. These projects are designed to create a portfolio of tangible, relevant artifacts that demonstrate your competence to employers.</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="border border-gray-200 rounded-lg p-6 text-center">
+                    <div class="text-4xl mb-4">🗺️</div>
+                    <h4 class="font-bold mb-2">Project 1: UM Process Design</h4>
+                    <p class="text-sm text-gray-600">Analyze a Utilization Management workflow, map its current state, and design an automated future state. Deliverable includes process maps and a business case.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-6 text-center">
+                    <div class="text-4xl mb-4">🤖</div>
+                    <h4 class="font-bold mb-2">Project 2: Claims Bot PoC</h4>
+                    <p class="text-sm text-gray-600">Build a functional UiPath bot to automate a mock claims adjudication step. Deliverable includes the bot, a demo video, and a compliance design document.</p>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-6 text-center">
+                    <div class="text-4xl mb-4">📊</div>
+                    <h4 class="font-bold mb-2">Project 3: Platform Analysis</h4>
+                    <p class="text-sm text-gray-600">Create an executive summary on the Innovaccer and Epic Payer Platforms. Deliverable is a strategic report demonstrating high-level thinking.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="mb-16">
+            <h3 class="text-2xl font-bold text-center mb-2">Phased Implementation Roadmap</h3>
+            <p class="text-center text-gray-600 mb-8">This interactive timeline visualizes the 18+ month journey, breaking it down into manageable and measurable phases from foundational learning to market entry.</p>
+            <div class="timeline-chart-container bg-white p-4 rounded-lg shadow-md">
+                <canvas id="roadmapChart"></canvas>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200">
+        <div class="container mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            <p>This interactive plan was generated to support the professional development of Lamin Yabou.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gapData = {
+                labels: [
+                    'Managed Care Ops', 
+                    'Delegated Services', 
+                    'EZCAP Experience', 
+                    'RPA Platforms', 
+                    'Process Optimization', 
+                    'Program Leadership', 
+                    'Compliance (DMHC)'
+                ],
+                datasets: [{
+                    label: 'Required Competency',
+                    data: [9, 9, 8, 8, 9, 8, 9],
+                    backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                    borderColor: 'rgba(13, 148, 136, 1)',
+                    pointBackgroundColor: 'rgba(13, 148, 136, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(13, 148, 136, 1)'
+                }, {
+                    label: 'Current Profile',
+                    data: [2, 1, 1, 3, 4, 4, 2],
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(59, 130, 246, 1)'
+                }]
+            };
+
+            const gapConfig = {
+                type: 'radar',
+                data: gapData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                            pointLabels: {
+                                font: {
+                                    size: 11
+                                }
+                            },
+                             ticks: {
+                                backdropColor: 'rgba(255, 255, 255, 0.75)',
+                                stepSize: 2
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.r !== null) {
+                                        label += context.parsed.r;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const gapAnalysisChartCtx = document.getElementById('gapAnalysisChart').getContext('2d');
+            new Chart(gapAnalysisChartCtx, gapConfig);
+
+            const roadmapData = {
+                labels: ['Phase 1: Immersion', 'Phase 2: Application', 'Phase 3: Leadership'],
+                datasets: [{
+                    label: 'Duration (Months)',
+                    data: [
+                        [0, 6],
+                        [6, 18],
+                        [18, 24]
+                    ],
+                    backgroundColor: [
+                        'rgba(13, 148, 136, 0.6)',
+                        'rgba(59, 130, 246, 0.6)',
+                        'rgba(79, 70, 229, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(13, 148, 136, 1)',
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(79, 70, 229, 1)'
+                    ],
+                    borderWidth: 1,
+                    barPercentage: 0.5
+                }]
+            };
+
+            const roadmapConfig = {
+                type: 'bar',
+                data: roadmapData,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            min: 0,
+                            max: 24,
+                            title: {
+                                display: true,
+                                text: 'Months'
+                            }
+                        },
+                        y: {
+                            stacked: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const d = context.raw;
+                                    return `Months ${d[0]} to ${d[1]}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            
+            const roadmapChartCtx = document.getElementById('roadmapChart').getContext('2d');
+            new Chart(roadmapChartCtx, roadmapConfig);
+
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetId = tab.id.replace('tab-', 'content-');
+                    
+                    tabs.forEach(t => {
+                        t.classList.remove('tab-active');
+                        t.classList.add('tab-inactive');
+                    });
+                    
+                    tab.classList.add('tab-active');
+                    tab.classList.remove('tab-inactive');
+
+                    contents.forEach(content => {
+                        if (content.id === targetId) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
